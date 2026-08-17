@@ -1,0 +1,6 @@
+name = "ta-egress-proxy"
+main = "worker.js"
+compatibility_date = "2026-08-01"
+
+# PROXY_KEY is a secret, not a var — set it with:
+#   npx wrangler secret put PROXY_KEY
