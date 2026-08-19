@@ -1,6 +1,6 @@
 """Batch-deep-analyze a shortlist with TradingAgents, saving a summary per ticker.
 
-Usage: .venv/bin/python scripts/batch_analyze.py [YYYY-MM-DD] HIG CVS GM EME GPN
+Usage: .venv/bin/python scripts/batch_analyze.py [YYYY-MM-DD] [--user "持仓备注"] HIG CVS GM
 """
 import json
 import re
@@ -22,6 +22,12 @@ print(f"[data] {data_source_guards.install()}", flush=True)
 
 args = sys.argv[1:]
 DATE = args.pop(0) if args and re.fullmatch(r"\d{4}-\d{2}-\d{2}", args[0]) else "2026-08-12"
+USER_CONTEXT = ""
+if "--user" in args:
+    i = args.index("--user")
+    if i + 1 < len(args):
+        USER_CONTEXT = args[i + 1]
+    del args[i:i + 2]
 TICKERS = args or ["HIG", "CVS", "GM", "EME", "GPN"]
 OUT_DIR = Path("reports") / f"batch_{datetime.now():%Y%m%d_%H%M%S}"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -33,7 +39,7 @@ def main():
         print(f"\n=== [{i}/{len(TICKERS)}] {ticker} @ {DATE} ===", flush=True)
         try:
             ta = TradingAgentsGraph(debug=True, config=config)
-            final_state, decision = ta.propagate(ticker, DATE)
+            final_state, decision = ta.propagate(ticker, DATE, user_context=USER_CONTEXT)
             summary = {
                 "ticker": ticker,
                 "date": DATE,
