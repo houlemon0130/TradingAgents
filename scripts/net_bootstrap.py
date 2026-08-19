@@ -38,6 +38,10 @@ DIRECT_HOSTS = [
     ".yahoo.com",
     "api.stlouisfed.org",
     "www.alphavantage.co",
+    # The egress Worker must be direct: LightProxy MITM does not forward the
+    # X-Proxy-Key header, so proxied requests die with 403 forbidden while
+    # direct requests are 200 (diagnosed 2026-08-19).
+    "ta-egress-proxy.quasar-cymbal.workers.dev",
     "localhost",
     "127.0.0.1",
 ]
