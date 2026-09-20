@@ -13,6 +13,8 @@ from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+from cli.utils import normalize_ticker_symbol
+
 ROOT = Path(__file__).resolve().parent
 VENV_PY = ROOT / ".venv" / "bin" / "python"
 RUN_SCRIPT = ROOT / "webui_run.py"
@@ -48,6 +50,7 @@ def clean_env():
 def start_run(ticker, date):
     if STATE["running"]:
         return False, "已有分析在运行,请等它跑完"
+    ticker = normalize_ticker_symbol(ticker)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_file = LOG_DIR / f"{ticker}_{ts}.log"
     STATE.update(running=True, log_file=str(log_file), started_at=time.time(),
