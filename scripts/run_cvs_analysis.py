@@ -11,10 +11,10 @@ import net_bootstrap  # noqa: E402 — 必须先于任何联网 import 执行
 
 net_bootstrap.apply()
 
+import data_source_guards  # noqa: E402
+
 from tradingagents.default_config import DEFAULT_CONFIG  # noqa: E402
 from tradingagents.graph.trading_graph import TradingAgentsGraph  # noqa: E402
-
-import data_source_guards  # noqa: E402
 
 print(f"[data] {data_source_guards.install()}", flush=True)
 

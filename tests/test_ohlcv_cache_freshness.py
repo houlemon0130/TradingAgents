@@ -21,7 +21,11 @@ STALE = su.OHLCV_CACHE_TTL_SECONDS + 60
 def _write(tmp_path, name="AAPL-YFin-data.csv", age_seconds=0.0, last_date="2026-07-17"):
     f = tmp_path / name
     pd.DataFrame({"Date": [last_date], "Close": [100.0]}).to_csv(f, index=False)
-    written = NOW.timestamp() - age_seconds
+    # ``pandas.Timestamp.timestamp()`` treats a naive value as UTC, while
+    # ``fromtimestamp()`` in the production freshness check uses local time.
+    # Generate the filesystem timestamp with Python's local-time semantics so
+    # this test remains portable outside UTC (for example Asia/Shanghai).
+    written = NOW.to_pydatetime().timestamp() - age_seconds
     os.utime(f, (written, written))
     return f
 

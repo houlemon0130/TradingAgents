@@ -52,11 +52,14 @@ def start_run(ticker, date):
     log_file = LOG_DIR / f"{ticker}_{ts}.log"
     STATE.update(running=True, log_file=str(log_file), started_at=time.time(),
                  finished_at=None, exit_code=None, ticker=ticker)
-    proc = subprocess.Popen(
-        [str(VENV_PY), str(RUN_SCRIPT), ticker, date],
-        cwd=ROOT, env=clean_env(), stdout=open(log_file, "w"),
-        stderr=subprocess.STDOUT,
-    )
+    with log_file.open("w") as log_stream:
+        proc = subprocess.Popen(
+            [str(VENV_PY), str(RUN_SCRIPT), ticker, date],
+            cwd=ROOT,
+            env=clean_env(),
+            stdout=log_stream,
+            stderr=subprocess.STDOUT,
+        )
 
     def watch():
         proc.wait()

@@ -21,7 +21,6 @@ import net_bootstrap  # noqa: E402 — 必须先于任何联网 import
 
 net_bootstrap.apply()
 
-from tradingagents.default_config import DEFAULT_CONFIG  # noqa: E402 — 触发 .env 加载
 
 import data_source_guards  # noqa: E402
 
@@ -66,10 +65,13 @@ def main():
     guard = data_source_guards.install()
     print(f"[backends] {guard}", flush=True)
 
-    from tradingagents.dataflows import stocktwits, reddit, polymarket
     from tradingagents.agents.utils.agent_utils import (
-        get_stock_data, get_news, get_macro_indicators, get_fundamentals,
+        get_fundamentals,
+        get_macro_indicators,
+        get_news,
+        get_stock_data,
     )
+    from tradingagents.dataflows import polymarket, reddit, stocktwits
 
     check("stocktwits", lambda: stocktwits.fetch_stocktwits_messages(TICKER))
     check("reddit", lambda: reddit.fetch_reddit_posts(TICKER))

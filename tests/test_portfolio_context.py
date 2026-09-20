@@ -100,6 +100,15 @@ def test_create_run_state_renders_the_portfolio_once(tmp_path):
     assert graph.create_run_state("AAPL", "2026-08-14")["portfolio_context"] == ""
 
 
+def test_create_run_state_includes_free_text_user_context(tmp_path):
+    graph = _bare_graph(tmp_path)
+    state = graph.create_run_state(
+        "AAPL", "2026-08-14", user_context="持仓 20 股，成本 180 美元"
+    )
+    assert "[USER POSITION NOTE]" in state["past_context"]
+    assert "持仓 20 股，成本 180 美元" in state["past_context"]
+
+
 @pytest.mark.unit
 def test_checkpoint_signature_changes_with_the_portfolio(tmp_path):
     graph = _bare_graph(tmp_path)

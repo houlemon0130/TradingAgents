@@ -4,7 +4,6 @@ Pulls valuation/growth/cashflow/trend data via yfinance (free), filters to
 long-term-friendly names, ranks by PEG, writes CSV + prints Top 20.
 Usage: .venv/bin/python scripts/screen_sp500.py
 """
-import csv
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -40,9 +39,7 @@ def main():
     t0 = time.time()
     with ThreadPoolExecutor(max_workers=N_WORKERS) as ex:
         futs = [ex.submit(fetch, s, session) for s in symbols]
-        done = 0
-        for fut in as_completed(futs):
-            done += 1
+        for done, fut in enumerate(as_completed(futs), start=1):
             sym, info = fut.result()
             if info:
                 rows.append(_pick(sym, info))

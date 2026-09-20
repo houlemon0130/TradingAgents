@@ -381,11 +381,12 @@ def _harden_fred(fred_mod) -> bool:
 
 def install() -> dict:
     """Patch the three fetchers in place. Returns which paths are active."""
-    from tradingagents.dataflows import reddit as reddit_mod
-    from tradingagents.dataflows import stocktwits as st_mod
-    from tradingagents.dataflows import polymarket as pm_mod
     from tradingagents.agents.analysts import sentiment_analyst as sa_mod
-    from tradingagents.agents.utils import prediction_markets_tools as pm_tools
+    from tradingagents.dataflows import (
+        polymarket as pm_mod,
+        reddit as reddit_mod,
+        stocktwits as st_mod,
+    )
 
     original_reddit = reddit_mod.fetch_reddit_posts
     original_rss = reddit_mod._fetch_subreddit_rss
@@ -395,10 +396,16 @@ def install() -> dict:
     throttled = {"count": 0}
 
     def rss_with_retries(ticker, sub, limit, timeout, _retry=True):
-        """Anonymous RSS: retry briefly, and remember when we were throttled."""
+        """Anonymous RSS: retry briefly, and remember when we were throttled.
+
+        ``_retry=False`` is passed through: the original RSS fetcher's own
+        429-retry re-enters ``reddit_mod._fetch_subreddit_rss`` by global name,
+        which this patch has rebound to this wrapper — that made a 429 recurse
+        forever (2026-09-16 gate hang). This wrapper owns the retry policy now.
+        """
         for attempt in range(2):
             try:
-                posts = original_rss(ticker, sub, limit, timeout)
+                posts = original_rss(ticker, sub, limit, timeout, False)
             except Exception:
                 posts = []
             if posts:
