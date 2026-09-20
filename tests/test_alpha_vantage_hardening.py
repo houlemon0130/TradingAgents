@@ -115,8 +115,15 @@ _DAILY_CSV = (
 
 @pytest.mark.unit
 def test_stock_data_is_trimmed_to_the_requested_window(monkeypatch):
-    monkeypatch.setattr(avs, "_make_api_request", lambda *a, **k: _DAILY_CSV)
+    requested = []
+
+    def fake_request(function, params):
+        requested.append((function, params))
+        return _DAILY_CSV
+
+    monkeypatch.setattr(avs, "_make_api_request", fake_request)
     out = avs.get_stock("IBM", "2024-05-09", "2024-05-10")
+    assert requested[0][0] == "TIME_SERIES_DAILY"
     assert "2024-05-10" in out and "2024-05-09" in out
     assert "2024-05-13" not in out, "bar after end_date leaked into the window"
 

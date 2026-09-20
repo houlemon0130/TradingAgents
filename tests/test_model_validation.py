@@ -76,6 +76,11 @@ def test_an_explicit_alias_of_a_listed_model_is_known():
 
 
 @pytest.mark.unit
+def test_dashscope_cn_deepseek_v41_flash_is_known():
+    assert validate_model("qwen-cn", "deepseek-v4.1-flash")
+
+
+@pytest.mark.unit
 @pytest.mark.parametrize("provider", ["openai", "anthropic", "google", "xai"])
 @pytest.mark.parametrize("mode", ["quick", "deep"])
 def test_every_provider_lets_you_name_your_own_model(provider, mode):

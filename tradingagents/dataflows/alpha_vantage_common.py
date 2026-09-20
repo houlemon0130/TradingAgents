@@ -135,7 +135,7 @@ def _filter_csv_by_date_range(csv_data: str, start_date: str, end_date: str) -> 
     if not csv_data or csv_data.strip() == "":
         return csv_data
 
-    # Deliberately unguarded: TIME_SERIES_DAILY_ADJUSTED returns the full series
+    # Deliberately unguarded: TIME_SERIES_DAILY returns the full series
     # up to today, so this trim is the only thing keeping bars after end_date out
     # of a historical run. Swallowing a parse failure would serve the untrimmed
     # body, and with it future prices.

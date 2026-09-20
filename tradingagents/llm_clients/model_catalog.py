@@ -55,6 +55,22 @@ _QWEN_MODELS: dict[str, list[ModelOption]] = {
     ],
 }
 
+# DashScope's China endpoint also exposes selected third-party models. Keep the
+# regional catalog honest so a verified DeepSeek deployment does not emit an
+# "unknown qwen-cn model" warning on every run.
+_QWEN_CN_MODELS: dict[str, list[ModelOption]] = {
+    "quick": [
+        *_QWEN_MODELS["quick"][:-1],
+        ("DeepSeek V4.1 Flash - Fast, 1M ctx", "deepseek-v4.1-flash"),
+        _QWEN_MODELS["quick"][-1],
+    ],
+    "deep": [
+        *_QWEN_MODELS["deep"][:-1],
+        ("DeepSeek V4.1 Flash - Fast, 1M ctx", "deepseek-v4.1-flash"),
+        _QWEN_MODELS["deep"][-1],
+    ],
+}
+
 
 # Shared model list for MiniMax's global and CN endpoints (same IDs).
 # Full official lineup per platform.minimax.io/docs/api-reference/text-openai-api.
@@ -167,7 +183,7 @@ MODEL_OPTIONS: ProviderModeOptions = {
     # Qwen: same model IDs across global (dashscope-intl) and China
     # (dashscope) endpoints, so the two provider keys share one model list.
     "qwen": _QWEN_MODELS,
-    "qwen-cn": _QWEN_MODELS,
+    "qwen-cn": _QWEN_CN_MODELS,
     # GLM: Z.AI (international) and BigModel (China) host the same model
     # IDs; the two provider keys share one model list.
     "glm": _GLM_MODELS,

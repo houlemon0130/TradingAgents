@@ -11,11 +11,19 @@ Usage:
 Exit code: 0 = 全部数据源可用；1 = 至少一个 FAIL，禁止开始分析。
 """
 import sys
+from datetime import date, timedelta
 from pathlib import Path
+
+from dotenv import load_dotenv
 
 REPO = Path(__file__).resolve().parents[4]          # cvs 仓库根
 SCRIPTS = REPO / "scripts"
 sys.path.insert(0, str(SCRIPTS))
+
+# The guard module reads its Worker URL/key at import time. Load the project
+# environment explicitly instead of relying on an unrelated package import for
+# that side effect.
+load_dotenv(REPO / ".env")
 
 import net_bootstrap  # noqa: E402 — 必须先于任何联网 import
 
@@ -25,6 +33,9 @@ net_bootstrap.apply()
 import data_source_guards  # noqa: E402
 
 TICKER = sys.argv[1] if len(sys.argv) > 1 else "CVS"
+END_DATE = date.today()
+MARKET_START_DATE = END_DATE - timedelta(days=20)
+NEWS_START_DATE = END_DATE - timedelta(days=2)
 
 # 每个数据源用"成功特征"判定（数值数据会误匹配 403/429/error 等失败词，
 # 例如成交量 12403400 含子串 "403"）。
@@ -32,6 +43,7 @@ SUCCESS_MARKERS = {
     "stocktwits": lambda t: ("Bullish" in t or "Total:" in t)
     and "unavailable" not in t.lower(),
     "reddit": lambda t: t.startswith("Reddit search for")
+    or t.startswith("r/")
     or t.startswith("<no Reddit posts")
     or t.startswith("<no posts found"),
     "polymarket": lambda t: t.startswith("## Polymarket prediction markets")
@@ -40,6 +52,7 @@ SUCCESS_MARKERS = {
     "yahoo_ohlcv": lambda t: t.startswith("# Stock data for") and "Total records:" in t,
     "yahoo_news": lambda t: t.startswith("## ") and "News" in t,
     "fundamentals": lambda t: t.startswith("# Company Fundamentals"),
+    "alpha_vantage": lambda t: t.startswith("timestamp,open,high,low,close,volume"),
     "llm_dashscope": lambda t: "ok" in t.lower(),
 }
 
@@ -72,18 +85,23 @@ def main():
         get_stock_data,
     )
     from tradingagents.dataflows import polymarket, reddit, stocktwits
+    from tradingagents.dataflows.alpha_vantage_stock import get_stock as get_alpha_stock
 
     check("stocktwits", lambda: stocktwits.fetch_stocktwits_messages(TICKER))
     check("reddit", lambda: reddit.fetch_reddit_posts(TICKER))
     check("polymarket", lambda: polymarket.get_prediction_markets("Fed rate cut", 3))
     check("fred", lambda: get_macro_indicators.invoke(
-        {"indicator": "cpi", "curr_date": "2026-08-18", "look_back_days": 90}))
+        {"indicator": "cpi", "curr_date": str(END_DATE), "look_back_days": 90}))
     check("yahoo_ohlcv", lambda: get_stock_data.invoke(
-        {"symbol": TICKER, "start_date": "2026-08-01", "end_date": "2026-08-18"}))
+        {"symbol": TICKER, "start_date": str(MARKET_START_DATE),
+         "end_date": str(END_DATE)}))
     check("yahoo_news", lambda: get_news.invoke(
-        {"ticker": TICKER, "start_date": "2026-08-11", "end_date": "2026-08-18"}))
+        {"ticker": TICKER, "start_date": str(NEWS_START_DATE),
+         "end_date": str(END_DATE)}))
     check("fundamentals", lambda: get_fundamentals.invoke(
-        {"ticker": TICKER, "curr_date": "2026-08-18"}))
+        {"ticker": TICKER, "curr_date": str(END_DATE)}))
+    check("alpha_vantage", lambda: get_alpha_stock(
+        TICKER, str(MARKET_START_DATE), str(END_DATE)))
 
     # LLM 端点（DashScope/百炼）连通性：用一个极短请求探测，不调完整模型。
     try:

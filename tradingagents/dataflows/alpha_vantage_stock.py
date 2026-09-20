@@ -9,8 +9,7 @@ def get_stock(
     end_date: str
 ) -> str:
     """
-    Returns raw daily OHLCV values, adjusted close values, and historical split/dividend events
-    filtered to the specified date range.
+    Returns raw daily OHLCV values filtered to the specified date range.
 
     Args:
         symbol: The name of the equity. For example: symbol=IBM
@@ -35,6 +34,9 @@ def get_stock(
         "datatype": "csv",
     }
 
-    response = _make_api_request("TIME_SERIES_DAILY_ADJUSTED", params)
+    # DAILY_ADJUSTED is a premium-only endpoint and makes the configured
+    # Alpha Vantage fallback unusable with standard API keys. The free DAILY
+    # endpoint provides the OHLCV fields this routing path consumes.
+    response = _make_api_request("TIME_SERIES_DAILY", params)
 
     return _filter_csv_by_date_range(response, start_date, end_date)
