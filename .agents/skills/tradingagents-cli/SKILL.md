@@ -66,14 +66,16 @@ When the user asks to analyze multiple holdings or their portfolio, run one CLI 
 
 After the requested runs finish, create one self-contained HTML file under `reports/portfolio/`, named `tradingagents-portfolio-<analysis-date>.html`. If that name already exists, add a short unique suffix instead of overwriting it. The HTML is the default final artifact for a multi-holding analysis unless the user opts out.
 
-Build the HTML only from the approved portfolio snapshot and the saved CLI reports. Keep Trader action and Portfolio Manager rating as separate labeled fields. Include:
+Build a compact, plain-language HTML summary from the approved portfolio snapshot and saved CLI reports. The user wants the core explanation at a glance, not an archive of the analysis. For a three-holding report, aim for roughly one desktop screen, without shrinking text to fit. Include only:
 
-- the analysis date, portfolio snapshot, ticker coverage, provider/model when visible, and source report paths;
-- a concise decision table for every requested ticker with quantity, average cost when supplied, Trader action, Portfolio Manager rating, price target and time horizon when present;
-- the strongest supporting evidence, strongest opposing evidence, key risks, and proposed action for each ticker;
-- a portfolio-level synthesis that identifies concentration and conflicting recommendations without claiming mathematical optimization or inventing correlations;
-- a data-quality section listing failed, unavailable, stale, or degraded sources and any ticker run that did not complete;
-- collapsible detailed sections preserving the material analyst, debate, trader, risk, and portfolio-manager evidence behind each summary.
+- the analysis date and a one-sentence overall conclusion;
+- one short row or card per requested ticker: ticker and quantity, final Portfolio Manager rating in the user's language, proposed action, one or two decisive reasons, and the main risk or condition that would change the judgment;
+- a brief caveat only for gaps or contradictions that materially affect the conclusion, such as an invented allocation assumption or conflicting financial figures; mark incomplete tickers explicitly;
+- a small footer linking to the original reports for further reading.
+
+Keep each ticker's explanation to two or three short sentences. If Trader action and Portfolio Manager rating differ, add a short labeled clarification in that ticker's entry; do not present the Trader proposal as the final rating. Include a price level only when it is essential to understand the proposed action, and label its date/currency. Omit absent optional fields instead of filling the page with “not provided”.
+
+Do not embed full analyst reports, debates, collapsible evidence sections, logs, model configuration, or repeated tables. Preserve those details in the original reports. Summarize any portfolio-level observation in the opening sentence; do not claim mathematical optimization or invent correlations. Specific trade quantities derived from unapproved allocation assumptions must be flagged as unvalidated rather than displayed as ready-to-execute instructions.
 
 Use a readable responsive layout, embedded CSS, semantic tables, and no external CDN or network dependency. Escape report content before inserting it into HTML. Visual distinctions such as rating colors must also have text labels and must not imply that a trade occurred. Do not invent current prices, returns, cash, cost basis, thresholds, or recommendations to fill empty fields.
 
