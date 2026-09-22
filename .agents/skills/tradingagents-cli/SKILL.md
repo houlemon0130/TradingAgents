@@ -1,6 +1,6 @@
 ---
 name: tradingagents-cli
-description: Run this repository's TradingAgents CLI for single-ticker research, portfolio-aware analysis, checkpoint recovery, or historical backtests. Use when the user asks to run their TradingAgents project or its CLI; do not use for ordinary market questions that do not request the project.
+description: Run this repository's TradingAgents CLI for single-ticker research, portfolio-aware analysis, consolidated multi-holding HTML reports, checkpoint recovery, or historical backtests. Use when the user asks to run their TradingAgents project or its CLI; do not use for ordinary market questions that do not request the project.
 ---
 
 # TradingAgents CLI
@@ -60,6 +60,25 @@ Use the CLI contract directly:
 
 Optional flags are `--analysts`, `--asset-type`, `--portfolio`, and `--run-id`. Reuse `--run-id` to continue an interrupted sweep; do not start a duplicate sweep when the prior run is recoverable. A historical analysis date fixes price/indicator windows, but live news and social inputs can still change, so do not claim bit-for-bit reproducibility.
 
+## Consolidate a portfolio analysis into HTML
+
+When the user asks to analyze multiple holdings or their portfolio, run one CLI analysis per ticker against the same approved portfolio JSON, analysis date, language, analyst selection, and research depth. The CLI remains the source of every investment conclusion; do not replace a missing run with an ad-hoc analysis. Use checkpointing so an interrupted ticker can resume.
+
+After the requested runs finish, create one self-contained HTML file under `reports/portfolio/`, named `tradingagents-portfolio-<analysis-date>.html`. If that name already exists, add a short unique suffix instead of overwriting it. The HTML is the default final artifact for a multi-holding analysis unless the user opts out.
+
+Build the HTML only from the approved portfolio snapshot and the saved CLI reports. Keep Trader action and Portfolio Manager rating as separate labeled fields. Include:
+
+- the analysis date, portfolio snapshot, ticker coverage, provider/model when visible, and source report paths;
+- a concise decision table for every requested ticker with quantity, average cost when supplied, Trader action, Portfolio Manager rating, price target and time horizon when present;
+- the strongest supporting evidence, strongest opposing evidence, key risks, and proposed action for each ticker;
+- a portfolio-level synthesis that identifies concentration and conflicting recommendations without claiming mathematical optimization or inventing correlations;
+- a data-quality section listing failed, unavailable, stale, or degraded sources and any ticker run that did not complete;
+- collapsible detailed sections preserving the material analyst, debate, trader, risk, and portfolio-manager evidence behind each summary.
+
+Use a readable responsive layout, embedded CSS, semantic tables, and no external CDN or network dependency. Escape report content before inserting it into HTML. Visual distinctions such as rating colors must also have text labels and must not imply that a trade occurred. Do not invent current prices, returns, cash, cost basis, thresholds, or recommendations to fill empty fields.
+
+Validate that the HTML opens locally, contains every requested ticker exactly once in the summary, and shows incomplete analyses explicitly. Open or link the resulting file for the user after generation.
+
 ## Validate and report
 
 After the CLI exits:
@@ -69,5 +88,6 @@ After the CLI exits:
 - Call out unavailable or degraded sources such as StockTwits `403`, Reddit `429`, timeouts, or provider fallback. A failed source is missing evidence, not neutral sentiment.
 - Separate verified run facts from your interpretation. Include ticker, analysis date, asset/session context, provider/model if visible, report path, and any checkpoint resume.
 - For backtests, report cells run/skipped, failures/unsettled cells, log path, and the CLI's summary. Do not market the output as a guaranteed strategy return.
+- For multi-holding runs, report the consolidated HTML path plus the per-ticker run paths and identify any incomplete ticker.
 
 Lead with the decision in plain language, then give the main supporting and opposing evidence, important data gaps, and the result location.
