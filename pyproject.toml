@@ -28,6 +28,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+watcher = ["websockets>=15,<17", "pexpect>=4.9,<5", "truststore>=0.10"]
 dev = [
     "ruff>=0.15",
     "pytest>=8.0",
