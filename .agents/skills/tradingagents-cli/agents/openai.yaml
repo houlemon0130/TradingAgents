@@ -1,0 +1,4 @@
+interface:
+  display_name: "TradingAgents CLI"
+  short_description: "用项目 CLI 执行投资分析、持仓研判和历史回测任务"
+  default_prompt: "Use $tradingagents-cli to analyze a ticker with the project CLI and summarize the evidence-bounded result."
