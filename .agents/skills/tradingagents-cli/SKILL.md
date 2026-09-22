@@ -66,20 +66,21 @@ When the user asks to analyze multiple holdings or their portfolio, run one CLI 
 
 After the requested runs finish, create one self-contained HTML file under `reports/portfolio/`, named `tradingagents-portfolio-<analysis-date>.html`. If that name already exists, add a short unique suffix instead of overwriting it. The HTML is the default final artifact for a multi-holding analysis unless the user opts out.
 
-Build a compact, plain-language HTML summary from the approved portfolio snapshot and saved CLI reports. The user wants the core explanation at a glance, not an archive of the analysis. For a three-holding report, aim for roughly one desktop screen, without shrinking text to fit. Include only:
+Build a compact, plain-language HTML summary from the approved portfolio snapshot and saved CLI reports. Simplify each role's wording, not the coverage: retain every role's conclusion. Prefer a role-by-ticker comparison table for a small portfolio, with readable text and horizontal scrolling on narrow screens. Do not force the whole report onto one screen at the expense of role coverage. Include:
 
 - the analysis date and a one-sentence overall conclusion;
-- one short row or card per requested ticker: ticker and quantity, final Portfolio Manager rating in the user's language, proposed action, one or two decisive reasons, and the main risk or condition that would change the judgment;
+- ticker and quantity in each column header, followed by one row per role: Market, Sentiment, News, Fundamentals, Bull Researcher, Bear Researcher, Research Manager, Trader, Aggressive Risk, Conservative Risk, Neutral Risk, and Portfolio Manager;
+- one or two short sentences per role/ticker cell stating its stance, decisive reason, and essential condition when relevant; use the user's language, preserve disagreements, and visually distinguish the final Portfolio Manager row;
 - a brief caveat only for gaps or contradictions that materially affect the conclusion, such as an invented allocation assumption or conflicting financial figures; mark incomplete tickers explicitly;
 - a small footer linking to the original reports for further reading.
 
-Keep each ticker's explanation to two or three short sentences. If Trader action and Portfolio Manager rating differ, add a short labeled clarification in that ticker's entry; do not present the Trader proposal as the final rating. Include a price level only when it is essential to understand the proposed action, and label its date/currency. Omit absent optional fields instead of filling the page with “not provided”.
+Keep each role's conclusion independently traceable to its own saved report; do not substitute the final rating for the other roles' opinions. Show Trader action and Portfolio Manager rating in their respective rows. Mark a skipped, inapplicable, or failed role briefly instead of silently omitting it or inventing a stance. Include a price level only when it is essential to understand the proposed action, and label its date/currency. Omit absent optional fields instead of filling the page with “not provided”.
 
 Do not embed full analyst reports, debates, collapsible evidence sections, logs, model configuration, or repeated tables. Preserve those details in the original reports. Summarize any portfolio-level observation in the opening sentence; do not claim mathematical optimization or invent correlations. Specific trade quantities derived from unapproved allocation assumptions must be flagged as unvalidated rather than displayed as ready-to-execute instructions.
 
 Use a readable responsive layout, embedded CSS, semantic tables, and no external CDN or network dependency. Escape report content before inserting it into HTML. Visual distinctions such as rating colors must also have text labels and must not imply that a trade occurred. Do not invent current prices, returns, cash, cost basis, thresholds, or recommendations to fill empty fields.
 
-Validate that the HTML opens locally, contains every requested ticker exactly once in the summary, and shows incomplete analyses explicitly. Open or link the resulting file for the user after generation.
+Validate that the HTML opens locally, covers every requested ticker and all roles without duplicates, and shows incomplete analyses explicitly. Open or link the resulting file for the user after generation.
 
 ## Validate and report
 
