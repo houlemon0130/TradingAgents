@@ -154,6 +154,7 @@ def test_cli_run_uses_the_decision_log_like_propagate(tmp_path, monkeypatch):
     monkeypatch.setattr(m, "_build_run_config", lambda selections, checkpoint: {
         "data_cache_dir": str(tmp_path / "cache"), "results_dir": str(tmp_path / "results"),
     })
+    monkeypatch.setattr(m, "check_data_readiness", lambda selections, config: None)
     monkeypatch.setattr(m.typer, "prompt", lambda *a, **k: "N")
 
     m.run_analysis()

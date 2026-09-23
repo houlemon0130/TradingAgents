@@ -20,6 +20,7 @@ from rich.table import Table
 from rich.text import Text
 
 from cli.announcements import display_announcements, fetch_announcements
+from cli.data_readiness import DataNotReadyError, check_data_readiness
 from cli.prefs import load_last_run, sanitize, save_last_run
 from cli.stats_handler import StatsCallbackHandler
 from cli.utils import (
@@ -1052,6 +1053,10 @@ def run_analysis(checkpoint: bool | None = None, portfolio=None):
 
     config = _build_run_config(selections, checkpoint)
 
+    # A partial vendor bar or unavailable selected source must stop the run
+    # before any model call, report directory, or checkpoint is created.
+    check_data_readiness(selections, config)
+
     # Create stats callback handler for tracking LLM/tool calls
     stats_handler = StatsCallbackHandler()
 
@@ -1394,6 +1399,9 @@ def analyze(
 
     try:
         run_analysis(checkpoint=checkpoint, portfolio=portfolio_context)
+    except DataNotReadyError as exc:
+        console.print(f"[red]Data not ready; analysis not started: {exc}[/red]")
+        raise typer.Exit(code=1) from None
     except _NO_CONSOLE_ERRORS:
         # A terminal with no console buffer cannot host the interactive prompts.
         # Emit one actionable line on stderr instead of a prompt_toolkit

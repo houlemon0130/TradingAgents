@@ -160,6 +160,7 @@ def test_the_cli_says_when_a_run_produced_no_usable_rating(monkeypatch, tmp_path
     })
     monkeypatch.setattr(m, "_build_run_config", lambda s, c: {
         "data_cache_dir": str(tmp_path / "c"), "results_dir": str(tmp_path / "r")})
+    monkeypatch.setattr(m, "check_data_readiness", lambda selections, config: None)
 
     m.run_analysis()
 

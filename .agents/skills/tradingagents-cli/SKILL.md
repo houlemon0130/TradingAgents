@@ -20,6 +20,12 @@ Prefer `.venv/bin/tradingagents`; fall back to `python -m cli.main` only when th
 
 The CLI is a research system. It does not connect to a broker or place orders. Describe its result as analysis or a model decision, never as an executed trade.
 
+## Data readiness is a hard gate
+
+Before model analysis, verify a complete OHLCV bar for the latest completed session and probe every enabled analyst's required sources. A row with volume but missing Open, High, Low, or Close is not ready. Stop and report the missing source/date; do not substitute an earlier close or estimate. The CLI enforces this gate before creating an analysis run.
+
+Sources disabled in the active analyst are excluded. An empty but successful search differs from a failed fetch. If a source fails after preflight, mark the analysis incomplete rather than present it as a current trading signal.
+
 ## Choose the CLI mode
 
 - For one ticker and one analysis date, run the bare interactive command.
